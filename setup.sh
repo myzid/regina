@@ -18,6 +18,7 @@ fi
 
 run_peli() {
 #Create Folder
+mkdir /etc/log-create
 mkdir /etc/slowdns
 mkdir /etc/xray
 mkdir /etc/websocket
