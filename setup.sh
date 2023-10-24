@@ -11,18 +11,15 @@ if [ "$(systemd-detect-virt)" == "openvz" ]; then
 		exit 1
 fi
 if [ -f "/etc/xray/domain" ]; then
-echo "Script Already Installed"
+echo "Script Sudah TerInstall Sebelumnya"
 exit 1
 fi
 }
 
 run_peli() {
 #Create Folder
-mkdir /etc/log-create
 mkdir /etc/slowdns
-mkdir /etc/xray
 mkdir /etc/websocket
-mkdir /etc/xray
 mkdir /etc/funny
 mkdir /etc/funny/trojan
 mkdir /etc/funny/vless
@@ -60,13 +57,52 @@ mkdir /etc/funny/cache/vmess-grpc
 mkdir /etc/funny/cache/vmess-ws-orbit
 mkdir /etc/funny/cache/vmess-ws-orbit1
 mkdir /etc/funny/cache/socks5
-mkdir /etc/vmess
-mkdir /etc/vless
-mkdir /etc/trojan
+
+# // Beda Folder
+rm -rf /etc/vmess/.vmess.db
+    rm -rf /etc/vless/.vless.db
+    rm -rf /etc/trojan/.trojan.db
+    rm -rf /etc/shadowsocks/.shadowsocks.db
+    rm -rf /etc/ssh/.ssh.db
+    rm -rf /etc/bot/.bot.db
+    mkdir /etc/log-create
+    mkdir -p /etc/bot
+    mkdir -p /etc/xray
+    mkdir -p /etc/vmess
+    mkdir -p /etc/vless
+    mkdir -p /etc/trojan
+    mkdir -p /etc/shadowsocks
+    mkdir -p /etc/ssh
+    mkdir -p /usr/bin/xray/
+    mkdir -p /var/log/xray/
+    mkdir -p /var/www/html
+    mkdir -p /etc/kyt/limit/vmess/ip
+    mkdir -p /etc/kyt/limit/vless/ip
+    mkdir -p /etc/kyt/limit/trojan/ip
+    mkdir -p /etc/kyt/limit/ssh/ip
+    mkdir -p /etc/limit/vmess
+    mkdir -p /etc/limit/vless
+    mkdir -p /etc/limit/trojan
+    mkdir -p /etc/limit/ssh
+    chmod +x /var/log/xray
+    touch /etc/xray/domain
+    touch /var/log/xray/access.log
+    touch /var/log/xray/error.log
+    touch /etc/vmess/.vmess.db
+    touch /etc/vless/.vless.db
+    touch /etc/trojan/.trojan.db
+    touch /etc/shadowsocks/.shadowsocks.db
+    touch /etc/ssh/.ssh.db
+    touch /etc/bot/.bot.db
+    echo "& plughin Account" >>/etc/vmess/.vmess.db
+    echo "& plughin Account" >>/etc/vless/.vless.db
+    echo "& plughin Account" >>/etc/trojan/.trojan.db
+    echo "& plughin Account" >>/etc/shadowsocks/.shadowsocks.db
+    echo "& plughin Account" >>/etc/ssh/.ssh.db
 clear
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[1;33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 echo -e "$green          Input Domain              	$NC"
-echo -e "\e[33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
+echo -e "\033[1;33m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\033[0m"
 read -p "Input Your SubDomain : " domain
 read -p "Input Your NS Domain : " nsdomain
 echo "$domain" > /root/scdomain
@@ -118,7 +154,6 @@ apt install apt-transport-https -y
 apt install build-essential -y
 apt install dirmngr -y
 apt install libxml-parser-perl -y
-apt install neofetch -y
 apt install git -y
 apt install lsof -y
 apt install libsqlite3-dev -y
@@ -181,7 +216,7 @@ run_ei() {
     while IFS= read -r line; do
       # Memisahkan nama VPS, IP VPS, dan tanggal kadaluwarsa
       nama=$(echo "$line" | awk '{print $1}')
-      ipvps=$(echo "$line" | awk '{print $2}')
+      ipvps=$( "$line" | awk '{print $2}')
       tanggal=$(echo "$line" | awk '{print $3}')
 
       # Memeriksa apakah IP VPS saat ini cocok dengan IP VPS yang ada di izin.txt
@@ -226,7 +261,7 @@ clear
 }
 
 run_file() {
-####menu
+##### menu #####
 cd /usr/bin
 rm -fr menu
 rm -fr /usr/sbin/menu
@@ -236,14 +271,14 @@ chmod +x menu/*
 mv menu/* /usr/local/sbin
 rm -rf menu
 rm -rf menu.zip
-#######service
+##### service #####
 cd /usr/local/bin
 wget https://raw.githubusercontent.com/myzid/regina/main/ws.zip
 unzip ws.zip
 rm -fr ws.zip
 chmod +x *
 chmod +x /usr/bin/*
-#####core
+###### core system #####
 cd /etc/systemd/system
 wget https://raw.githubusercontent.com/myzid/regina/main/service.zip
 unzip service.zip
@@ -255,7 +290,7 @@ systemctl enable quota
 systemctl restart ws-stunnel
 systemctl restart ws-nontls
 systemctl restart quota
-###slowdns
+##### slowdns ######
 mkdir /etc/slowdns
 cd /etc/slowdns
 wget https://raw.githubusercontent.com/myzid/regina/main/dns.zip
@@ -265,8 +300,67 @@ chmod +x *
 ./dnstt-server -gen-key -pubkey-file server.pub
 rm -rf dns.zip
 cd
-}
+wget https://raw.githubusercontent.com/ZvnStores/tv/main/limit/limit.sh && chmod +x limit.sh && ./limit.sh
+cd
+wget -q -O /usr/bin/limit-ip "https://raw.githubusercontent.com/ZvnStores/tv/main/limit/limit-ip"
+chmod +x /usr/bin/*
+cd /usr/bin
+sed -i 's/\r//' limit-ip
+cd
+clear
+#SERVICE LIMIT ALL IP
+cat >/etc/systemd/system/vmip.service << EOF
+[Unit]
+Description=My
+ProjectAfter=network.target
 
+[Service]
+WorkingDirectory=/root
+ExecStart=/usr/bin/limit-ip vmip
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl restart vmip
+systemctl enable vmip
+
+cat >/etc/systemd/system/vlip.service << EOF
+[Unit]
+Description=My
+ProjectAfter=network.target
+
+[Service]
+WorkingDirectory=/root
+ExecStart=/usr/bin/limit-ip vlip
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl restart vlip
+systemctl enable vlip
+
+cat >/etc/systemd/system/trip.service << EOF
+[Unit]
+Description=My
+ProjectAfter=network.target
+
+[Service]
+WorkingDirectory=/root
+ExecStart=/usr/bin/limit-ip trip
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl restart trip
+systemctl enable trip
+
+}
 run_cantikva() {
 export DEBIAN_FRONTEND=noninteractive
 MYIP=$(wget -qO- ipinfo.io/ip);
@@ -411,7 +505,7 @@ rm -fr /etc/issue.net
 cat> /etc/issue.net << END
 <br>
 <font color="blue"><b>===============================</br></font><br>
-<font color="red"><b>********  IZZ x ZAA *******</b></font><br>
+<font color="red"><b>          FV STORES        </b></font><br>
 <font color="blue"><b>===============================</br></font><br>
 END
 /etc/init.d/dropbear restart
@@ -655,18 +749,47 @@ history -c
 echo "1.2" > /home/ver
 echo " "
 clear
-figlet "Hansor Script"
+figlet "Script project Fvstore" | lolcat
+echo
 echo -e "Install Berhasil dan lancar"  
-echo -e "" 
-echo -e "Untuk membuka panel AutoSC Masukan" 
+echo
+sleep 1
+echo -e "Silakan Ubah Port Login vps Dari 22 Menjadi 3303"
+echo
+sleep 1
+echo -e "Untuk membuka panel Script Masukan"
+echo
+sleep 1
 echo -e "perintah ( menu ) tanpa tanda kurung" 
-echo -e "" 
-read -p "Press enter untuk reboot : " ieieie 
+echo 
+sleep 1
+read -p "Klik Enter Untuk Reboot"
 touch /root/system
 sysctl -w net.ipv6.conf.all.disable_ipv6=1 >/dev/null 2>&1
 sysctl -w net.ipv6.conf.default.disable_ipv6=1 >/dev/null 2>&1
 rm -fr .bash_history
 reboot
+}
+
+run_notifikasi(){
+    CHATID="-1001899398362"
+    KEY="6293396608:AAGqZVrmdQjPc3tOj_gnUoWOVMrBsm8v6Xo"
+    URL="https://api.telegram.org/bot$KEY/sendMessage"
+    TIMEZONE=$(printf '%(%H:%M:%S)T')
+    TEXT="
+<code>────────────────────</code>
+<b>⚡AUTOSCRIPT PREMIUM⚡</b>
+<code>────────────────────</code>
+<code>ID     : </code><code>$nama</code>
+<code>Domain : </code><code>$(cat /etc/xray/domain)</code>
+<code>Time   : </code><code>$TIMEZONE</code>
+<code>Ip vps : </code><code>${ip_vps}</code>
+<code>Exp Sc : </code><code>$tanggal</code>
+<code>────────────────────</code>
+<i>Automatic Notification from Github</i>
+<i>Fvstores</i>
+"'&reply_markup={"inline_keyboard":[[{"text":"ᴏʀᴅᴇʀ🐳","url":"https://t.me/×××"},{"text":"ɪɴꜱᴛᴀʟʟ🐬","url":"https://t.me/×××"}]]}'
+curl -s --max-time 10 -d "chat_id=$CHATID&disable_web_page_preview=1&text=$TEXT&parse_mode=html" $URL >/dev/null
 }
 
 run_pensi() {
